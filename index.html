@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bloch Sphere — Happy Teacher's Day, Professor</title>
+
+    <style>
+        /* =========================================================
+           GLOBAL
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+
+            background: #050505;
+            color: #ffffff;
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        #scene {
+            position: fixed;
+            inset: 0;
+        }
+
+
+        /* =========================================================
+           TOP HUD
+        ========================================================= */
+
+        .hud {
+            position: fixed;
+
+            top: 32px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            z-index: 10;
+
+            width: 90%;
+
+            text-align: center;
+
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            margin-bottom: 10px;
+
+            color: #888888;
+
+            font-family: monospace;
+            font-size: 11px;
+
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+
+            color: #ffffff;
+
+            font-size: clamp(28px, 4vw, 48px);
+            font-weight: 400;
+
+            letter-spacing: -0.035em;
+        }
+
+        h1 span {
+            color: #ff6a00;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+
+            color: #888888;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================================================
+           LEFT INSTRUCTION
+        ========================================================= */
+
+        .hint {
+            position: fixed;
+
+            left: 30px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            z-index: 5;
+
+            color: rgba(255, 255, 255, 0.38);
+
+            font-family: monospace;
+            font-size: 10px;
+
+            line-height: 1.8;
+
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+
+            pointer-events: none;
+        }
+
+
+        /* =========================================================
+           STATE PANEL
+        ========================================================= */
+
+        .state-panel {
+            position: fixed;
+
+            left: 30px;
+            bottom: 30px;
+
+            z-index: 10;
+
+            min-width: 250px;
+
+            padding: 18px 20px;
+
+            background: rgba(8, 8, 8, 0.86);
+
+            border: 1px solid rgba(255, 106, 0, 0.28);
+
+            border-radius: 12px;
+
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+
+            box-shadow:
+                0 10px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .state-title {
+            margin-bottom: 8px;
+
+            color: #777777;
+
+            font-family: monospace;
+            font-size: 10px;
+
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .state-value {
+            color: #ffffff;
+
+            font-family: monospace;
+            font-size: 15px;
+        }
+
+        .state-value span {
+            color: #ff6a00;
+        }
+
+
+        /* =========================================================
+           BUTTON
+        ========================================================= */
+
+        .controls {
+            position: fixed;
+
+            right: 30px;
+            bottom: 30px;
+
+            z-index: 20;
+        }
+
+        button {
+            position: relative;
+
+            padding: 15px 25px;
+
+            background: #0a0a0a;
+
+            color: #ffffff;
+
+            border: 1px solid #ff6a00;
+            border-radius: 8px;
+
+            font-family: monospace;
+            font-size: 13px;
+
+            letter-spacing: 0.08em;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.25s ease,
+                background 0.25s ease,
+                color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+
+            background: #ff6a00;
+            color: #000000;
+
+            box-shadow:
+                0 0 35px rgba(255, 106, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.55;
+
+            cursor: default;
+
+            transform: none;
+        }
+
+
+        /* =========================================================
+           THANK YOU PANEL
+        ========================================================= */
+
+        .thank-you {
+            position: fixed;
+
+            left: 50%;
+            top: 50%;
+
+            transform:
+                translate(-50%, -50%)
+                scale(0.92);
+
+            z-index: 15;
+
+            width: min(600px, 85vw);
+
+            padding: 36px;
+
+            text-align: center;
+
+            background: rgba(5, 5, 5, 0.94);
+
+            border: 1px solid rgba(255, 106, 0, 0.35);
+
+            border-radius: 16px;
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+
+            box-shadow:
+                0 20px 100px rgba(0, 0, 0, 0.6),
+                0 0 80px rgba(255, 106, 0, 0.06);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition:
+                opacity 1s ease,
+                transform 1s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .thank-you.visible {
+            opacity: 1;
+
+            transform:
+                translate(-50%, -50%)
+                scale(1);
+        }
+
+        .thank-you .symbol {
+            margin-bottom: 15px;
+
+            color: #ff6a00;
+
+            font-family: serif;
+            font-size: 42px;
+        }
+
+        .thank-you h2 {
+            margin: 0 0 14px;
+
+            color: #ffffff;
+
+            font-size: 28px;
+            font-weight: 400;
+        }
+
+        .thank-you p {
+            margin: 0;
+
+            color: #999999;
+
+            font-size: 15px;
+
+            line-height: 1.7;
+        }
+
+        .thank-you .signature {
+            margin-top: 22px;
+
+            color: #ffffff;
+
+            font-family: monospace;
+            font-size: 11px;
+
+            letter-spacing: 0.04em;
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 700px) {
+
+            .hint {
+                display: none;
+            }
+
+            .state-panel {
+                left: 15px;
+                bottom: 20px;
+
+                min-width: 0;
+            }
+
+            .controls {
+                right: 15px;
+                bottom: 20px;
+            }
+
+            button {
+                padding: 14px 18px;
+            }
+
+            .thank-you {
+                width: 90vw;
+
+                padding: 28px 22px;
+            }
+
+            .thank-you h2 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================================================
+         THREE.JS CANVAS
+    ========================================================== -->
+
+    <div id="scene"></div>
+
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <div class="hud">
+
+        <div class="eyebrow">
+            Happy Teacher's Day, Professor
+        </div>
+
+        <h1>
+            The <span>Bloch Sphere</span>
+        </h1>
+
+        <div class="subtitle">
+            Happy Teacher's Day, Sir — A very quantum way of making a very classical decision.
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         CONTROLS HINT
+    ========================================================== -->
+
+    <div class="hint">
+
+        Drag&nbsp;&nbsp;→&nbsp;&nbsp;Rotate<br>
+        Scroll&nbsp;→&nbsp;&nbsp;Zoom
+
+        <br>
+        <br>
+
+        Observe the<br>
+        state vector
+
+    </div>
+
+
+    <!-- =========================================================
+         STATE INFORMATION
+    ========================================================== -->
+
+    <div class="state-panel">
+
+        <div class="state-title">
+            Current State
+        </div>
+
+        <div
+            class="state-value"
+            id="stateText"
+        >
+            |ψ⟩ → <span>Doubt</span>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         BUTTON
+    ========================================================== -->
+
+    <div class="controls">
+
+        <button id="attendButton">
+            Attend Lecture
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+         THANK YOU MESSAGE
+    ========================================================== -->
+
+    <div
+        class="thank-you"
+        id="thankYou"
+    >
+
+        <div class="symbol">
+            ⟨ ψ |
+        </div>
+
+        <h2>
+            Happy Teacher's Day, Sir!!!
+        </h2>
+
+        <p>
+            Happy Teacher's Day, Sir!!!
+            Thank you for the lectures!!.
+            <br>
+            The probability of understanding has
+            successfully collapsed to 1.
+        </p>
+
+        <div class="signature">
+            Δψ → 0
+            &nbsp;&nbsp; | &nbsp;&nbsp;
+            uncertainty → enlightenment
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         THREE.JS IMPORT MAP
+    ========================================================== -->
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+    }
+    </script>
+
+
+    <!-- =========================================================
+         MAIN JAVASCRIPT
+    ========================================================== -->
+
+    <script type="module">
+
+        import * as THREE from "three";
+
+        import {
+            OrbitControls
+        } from "three/addons/controls/OrbitControls.js";
+
+        import {
+            CSS2DRenderer,
+            CSS2DObject
+        } from "three/addons/renderers/CSS2DRenderer.js";
+
+
+        /* =====================================================
+           BASIC SETUP
+        ===================================================== */
+
+        const container =
+            document.getElementById("scene");
+
+
+        const scene =
+            new THREE.Scene();
+
+
+        scene.background =
+            new THREE.Color(0x050505);
+
+
+        /* =====================================================
+           CAMERA
+        ===================================================== */
+
+        const camera =
+            new THREE.PerspectiveCamera(
+                45,
+                window.innerWidth /
+                window.innerHeight,
+                0.1,
+                100
+            );
+
+
+        camera.position.set(
+            3.4,
+            2.4,
+            4.2
+        );
+
+
+        /* =====================================================
+           WEBGL RENDERER
+        ===================================================== */
+
+        const renderer =
+            new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+
+
+        renderer.setPixelRatio(
+            Math.min(
+                window.devicePixelRatio,
+                2
+            )
+        );
+
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+
+        container.appendChild(
+            renderer.domElement
+        );
+
+
+        /* =====================================================
+           CSS LABEL RENDERER
+        ===================================================== */
+
+        const labelRenderer =
+            new CSS2DRenderer();
+
+
+        labelRenderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+
+        labelRenderer.domElement.style.position =
+            "fixed";
+
+        labelRenderer.domElement.style.top =
+            "0";
+
+        labelRenderer.domElement.style.left =
+            "0";
+
+        labelRenderer.domElement.style.pointerEvents =
+            "none";
+
+
+        container.appendChild(
+            labelRenderer.domElement
+        );
+
+
+        /* =====================================================
+           ORBIT CONTROLS
+        ===================================================== */
+
+        const controls =
+            new OrbitControls(
+                camera,
+                renderer.domElement
+            );
+
+
+        controls.enableDamping =
+            true;
+
+        controls.dampingFactor =
+            0.06;
+
+        controls.minDistance =
+            2.8;
+
+        controls.maxDistance =
+            7;
+
+        controls.enablePan =
+            false;
+
+
+        /* =====================================================
+           LIGHTING
+        ===================================================== */
+
+        scene.add(
+            new THREE.AmbientLight(
+                0xffffff,
+                1.2
+            )
+        );
+
+
+        const pointLight =
+            new THREE.PointLight(
+                0xffffff,
+                30,
+                10
+            );
+
+
+        pointLight.position.set(
+            3,
+            4,
+            4
+        );
+
+
+        scene.add(pointLight);
+
+
+        /* =====================================================
+           BLOCH SPHERE GROUP
+        ===================================================== */
+
+        const sphereGroup =
+            new THREE.Group();
+
+
+        scene.add(
+            sphereGroup
+        );
+
+
+        /* =====================================================
+           SPHERE
+        ===================================================== */
+
+        const sphereGeometry =
+            new THREE.SphereGeometry(
+                1,
+                64,
+                64
+            );
+
+
+        const sphereMaterial =
+            new THREE.MeshPhysicalMaterial({
+
+                color: 0x111111,
+
+                transparent: true,
+
+                opacity: 0.28,
+
+                roughness: 0.35,
+
+                metalness: 0.1
+
+            });
+
+
+        const sphere =
+            new THREE.Mesh(
+                sphereGeometry,
+                sphereMaterial
+            );
+
+
+        sphereGroup.add(
+            sphere
+        );
+
+
+        /* =====================================================
+           SPHERE WIREFRAME
+        ===================================================== */
+
+        const wireGeometry =
+            new THREE.SphereGeometry(
+                1.005,
+                32,
+                32
+            );
+
+
+        const wireMaterial =
+            new THREE.MeshBasicMaterial({
+
+                color: 0xffffff,
+
+                wireframe: true,
+
+                transparent: true,
+
+                opacity: 0.16
+
+            });
+
+
+        const wireSphere =
+            new THREE.Mesh(
+                wireGeometry,
+                wireMaterial
+            );
+
+
+        sphereGroup.add(
+            wireSphere
+        );
+
+
+        /* =====================================================
+           CIRCLE GENERATOR
+        ===================================================== */
+
+        function createCircle(
+            radius,
+            rotation
+        ) {
+
+            const geometry =
+                new THREE.BufferGeometry();
+
+
+            const points = [];
+
+            const segments = 128;
+
+
+            for (
+                let i = 0;
+                i <= segments;
+                i++
+            ) {
+
+                const angle =
+                    (i / segments) *
+                    Math.PI *
+                    2;
+
+
+                points.push(
+                    new THREE.Vector3(
+                        Math.cos(angle) *
+                            radius,
+
+                        Math.sin(angle) *
+                            radius,
+
+                        0
+                    )
+                );
+            }
+
+
+            geometry.setFromPoints(
+                points
+            );
+
+
+            const material =
+                new THREE.LineBasicMaterial({
+
+                    color: 0xffffff,
+
+                    transparent: true,
+
+                    opacity: 0.25
+
+                });
+
+
+            const line =
+                new THREE.Line(
+                    geometry,
+                    material
+                );
+
+
+            line.rotation.copy(
+                rotation
+            );
+
+
+            return line;
+        }
+
+
+        /* =====================================================
+           EQUATOR
+        ===================================================== */
+
+        sphereGroup.add(
+            createCircle(
+                1.008,
+                new THREE.Euler(
+                    0,
+                    0,
+                    0
+                )
+            )
+        );
+
+
+        /* =====================================================
+           LONGITUDE
+        ===================================================== */
+
+        sphereGroup.add(
+            createCircle(
+                1.008,
+                new THREE.Euler(
+                    Math.PI / 2,
+                    0,
+                    0
+                )
+            )
+        );
+
+
+        sphereGroup.add(
+            createCircle(
+                1.008,
+                new THREE.Euler(
+                    0,
+                    Math.PI / 2,
+                    0
+                )
+            )
+        );
+
+
+        /* =====================================================
+           VERTICAL AXIS
+        ===================================================== */
+
+        function createAxis(
+            direction,
+            color
+        ) {
+
+            const material =
+                new THREE.LineBasicMaterial({
+
+                    color,
+
+                    transparent: true,
+
+                    opacity: 0.35
+
+                });
+
+
+            const geometry =
+                new THREE.BufferGeometry()
+                    .setFromPoints([
+
+                        new THREE.Vector3(
+                            -direction.x * 1.15,
+                            -direction.y * 1.15,
+                            -direction.z * 1.15
+                        ),
+
+                        new THREE.Vector3(
+                            direction.x * 1.15,
+                            direction.y * 1.15,
+                            direction.z * 1.15
+                        )
+
+                    ]);
+
+
+            return new THREE.Line(
+                geometry,
+                material
+            );
+        }
+
+
+        sphereGroup.add(
+            createAxis(
+                new THREE.Vector3(
+                    0,
+                    1,
+                    0
+                ),
+                0xffffff
+            )
+        );
+
+
+        /* =====================================================
+           LABEL CREATOR
+        ===================================================== */
+
+        function createLabel(
+            text,
+            color
+        ) {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.textContent =
+                text;
+
+
+            div.style.color =
+                color;
+
+
+            div.style.fontFamily =
+                "monospace";
+
+
+            div.style.fontSize =
+                "12px";
+
+
+            div.style.letterSpacing =
+                "0.08em";
+
+
+            div.style.whiteSpace =
+                "nowrap";
+
+
+            div.style.textShadow =
+                "0 0 15px rgba(255,106,0,.5)";
+
+
+            return new CSS2DObject(
+                div
+            );
+        }
+
+
+        /* =====================================================
+           DOUBT LABEL
+        ===================================================== */
+
+        const doubtLabel =
+            createLabel(
+                "●  DOUBT",
+                "#ff6a00"
+            );
+
+
+        doubtLabel.position.set(
+            0,
+            1.22,
+            0
+        );
+
+
+        sphereGroup.add(
+            doubtLabel
+        );
+
+
+        /* =====================================================
+           ABSOLUTE INTUITION LABEL
+        ===================================================== */
+
+        const intuitionLabel =
+            createLabel(
+                "●  ABSOLUTE INTUITION",
+                "#ffffff"
+            );
+
+
+        intuitionLabel.position.set(
+            0,
+            -1.22,
+            0
+        );
+
+
+        sphereGroup.add(
+            intuitionLabel
+        );
+
+
+        /* =====================================================
+           STATE VECTOR GROUP
+        ===================================================== */
+
+        const vectorGroup =
+            new THREE.Group();
+
+
+        sphereGroup.add(
+            vectorGroup
+        );
+
+
+        /* =====================================================
+           INITIAL STATE VECTOR
+        ===================================================== */
+
+        const initialDirection =
+            new THREE.Vector3(
+                0,
+                1,
+                0
+            );
+
+
+        /* =====================================================
+           ORANGE ARROW
+        ===================================================== */
+
+        const arrow =
+            new THREE.ArrowHelper(
+
+                initialDirection,
+
+                new THREE.Vector3(
+                    0,
+                    0,
+                    0
+                ),
+
+                1.35,
+
+                0xff6a00,
+
+                0.18,
+
+                0.09
+
+            );
+
+
+        vectorGroup.add(
+            arrow
+        );
+
+
+        /* =====================================================
+           STATE POINT
+        ===================================================== */
+
+        const statePoint =
+            new THREE.Mesh(
+
+                new THREE.SphereGeometry(
+                    0.075,
+                    24,
+                    24
+                ),
+
+                new THREE.MeshBasicMaterial({
+                    color: 0xff6a00
+                })
+
+            );
+
+
+        statePoint.position
+            .copy(initialDirection)
+            .multiplyScalar(1.36);
+
+
+        vectorGroup.add(
+            statePoint
+        );
+
+
+        /* =====================================================
+           STATE TRAIL
+        ===================================================== */
+
+        const trailMaterial =
+            new THREE.LineBasicMaterial({
+
+                color: 0xff6a00,
+
+                transparent: true,
+
+                opacity: 0.5
+
+            });
+
+
+        const trailGeometry =
+            new THREE.BufferGeometry();
+
+
+        const trail =
+            new THREE.Line(
+                trailGeometry,
+                trailMaterial
+            );
+
+
+        vectorGroup.add(
+            trail
+        );
+
+
+        /* =====================================================
+           ANIMATION STATE
+        ===================================================== */
+
+        let isTransitioning =
+            false;
+
+
+        let hasArrived =
+            false;
+
+
+        const startVector =
+            new THREE.Vector3(
+                0,
+                1,
+                0
+            );
+
+
+        const targetVector =
+            new THREE.Vector3(
+                0,
+                -1,
+                0
+            );
+
+
+        const currentVector =
+            startVector.clone();
+
+
+        /* =====================================================
+           EASING
+        ===================================================== */
+
+        function easeInOutCubic(t) {
+
+            return t < 0.5
+
+                ? 4 * t * t * t
+
+                : 1 -
+                  Math.pow(
+                      -2 * t + 2,
+                      3
+                  ) / 2;
+        }
+
+
+        /* =====================================================
+           BUTTON / UI REFERENCES
+        ===================================================== */
+
+        const button =
+            document.getElementById(
+                "attendButton"
+            );
+
+
+        const stateText =
+            document.getElementById(
+                "stateText"
+            );
+
+
+        const thankYou =
+            document.getElementById(
+                "thankYou"
+            );
+
+
+        /* =====================================================
+           ATTEND LECTURE
+        ===================================================== */
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    isTransitioning ||
+                    hasArrived
+                ) {
+                    return;
+                }
+
+
+                isTransitioning =
+                    true;
+
+
+                button.disabled =
+                    true;
+
+
+                button.textContent =
+                    "Collapsing Wavefunction...";
+
+
+                const duration =
+                    3000;
+
+
+                const startTime =
+                    performance.now();
+
+
+                function animateTransition(
+                    currentTime
+                ) {
+
+                    const elapsed =
+                        currentTime -
+                        startTime;
+
+
+                    let t =
+                        Math.min(
+                            elapsed /
+                                duration,
+                            1
+                        );
+
+
+                    const eased =
+                        easeInOutCubic(
+                            t
+                        );
+
+
+                    /* -----------------------------------------
+                       SEMICIRCLE PATH
+
+                       Start:
+                           (0, 1, 0)
+
+                       Finish:
+                           (0, -1, 0)
+
+                       The vector travels through +Z.
+                    ----------------------------------------- */
+
+                    const angle =
+                        Math.PI *
+                        eased;
+
+
+                    currentVector.set(
+
+                        0,
+
+                        Math.cos(angle),
+
+                        Math.sin(angle)
+
+                    ).normalize();
+
+
+                    /* -----------------------------------------
+                       UPDATE ARROW
+                    ----------------------------------------- */
+
+                    arrow.setDirection(
+                        currentVector
+                    );
+
+
+                    arrow.setLength(
+                        1.35,
+                        0.18,
+                        0.09
+                    );
+
+
+                    /* -----------------------------------------
+                       UPDATE STATE POINT
+                    ----------------------------------------- */
+
+                    statePoint.position
+                        .copy(currentVector)
+                        .multiplyScalar(1.36);
+
+
+                    /* -----------------------------------------
+                       UPDATE TRAIL
+                    ----------------------------------------- */
+
+                    const trailPoints = [];
+
+                    const segments = 80;
+
+
+                    for (
+                        let i = 0;
+                        i <= segments;
+                        i++
+                    ) {
+
+                        const trailT =
+                            Math.min(
+                                i / segments,
+                                eased
+                            );
+
+
+                        const trailAngle =
+                            Math.PI *
+                            trailT;
+
+
+                        trailPoints.push(
+
+                            new THREE.Vector3(
+
+                                0,
+
+                                Math.cos(
+                                    trailAngle
+                                ),
+
+                                Math.sin(
+                                    trailAngle
+                                )
+
+                            )
+
+                        );
+                    }
+
+
+                    trailGeometry.setFromPoints(
+                        trailPoints
+                    );
+
+
+                    /* -----------------------------------------
+                       UPDATE TEXT
+                    ----------------------------------------- */
+
+                    if (eased < 0.5) {
+
+                        stateText.innerHTML =
+                            `|ψ⟩ → <span>Doubt</span>`;
+
+                    } else {
+
+                        stateText.innerHTML =
+                            `|ψ⟩ → <span>Absolute Intuition</span>`;
+                    }
+
+
+                    /* -----------------------------------------
+                       CONTINUE
+                    ----------------------------------------- */
+
+                    if (t < 1) {
+
+                        requestAnimationFrame(
+                            animateTransition
+                        );
+
+                    } else {
+
+                        finishTransition();
+                    }
+                }
+
+
+                requestAnimationFrame(
+                    animateTransition
+                );
+            }
+        );
+
+
+        /* =====================================================
+           FINISH TRANSITION
+        ===================================================== */
+
+        function finishTransition() {
+
+            isTransitioning =
+                false;
+
+
+            hasArrived =
+                true;
+
+
+            currentVector.copy(
+                targetVector
+            );
+
+
+            arrow.setDirection(
+                targetVector
+            );
+
+
+            statePoint.position
+                .copy(targetVector)
+                .multiplyScalar(1.36);
+
+
+            stateText.innerHTML =
+                `|ψ⟩ → <span>Absolute Intuition</span>`;
+
+
+            button.textContent =
+                "Lecture Attended ✓";
+
+
+            /* -----------------------------------------
+               REVEAL THANK YOU MESSAGE
+            ----------------------------------------- */
+
+            setTimeout(
+                () => {
+
+                    thankYou.classList.add(
+                        "visible"
+                    );
+
+                },
+                450
+            );
+        }
+
+
+        /* =====================================================
+           BACKGROUND PARTICLES
+        ===================================================== */
+
+        const particleGeometry =
+            new THREE.BufferGeometry();
+
+
+        const particleCount =
+            900;
+
+
+        const positions =
+            new Float32Array(
+                particleCount * 3
+            );
+
+
+        for (
+            let i = 0;
+            i < particleCount;
+            i++
+        ) {
+
+            positions[i * 3] =
+                (Math.random() - 0.5) *
+                10;
+
+
+            positions[i * 3 + 1] =
+                (Math.random() - 0.5) *
+                7;
+
+
+            positions[i * 3 + 2] =
+                (Math.random() - 0.5) *
+                10;
+        }
+
+
+        particleGeometry.setAttribute(
+
+            "position",
+
+            new THREE.BufferAttribute(
+                positions,
+                3
+            )
+
+        );
+
+
+        const particleMaterial =
+            new THREE.PointsMaterial({
+
+                color: 0xffffff,
+
+                size: 0.012,
+
+                transparent: true,
+
+                opacity: 0.35
+
+            });
+
+
+        const particles =
+            new THREE.Points(
+
+                particleGeometry,
+
+                particleMaterial
+
+            );
+
+
+        scene.add(
+            particles
+        );
+
+
+        /* =====================================================
+           RESIZE
+        ===================================================== */
+
+        window.addEventListener(
+            "resize",
+            () => {
+
+                camera.aspect =
+                    window.innerWidth /
+                    window.innerHeight;
+
+
+                camera.updateProjectionMatrix();
+
+
+                renderer.setSize(
+
+                    window.innerWidth,
+
+                    window.innerHeight
+
+                );
+
+
+                labelRenderer.setSize(
+
+                    window.innerWidth,
+
+                    window.innerHeight
+
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           RENDER LOOP
+        ===================================================== */
+
+        const clock =
+            new THREE.Clock();
+
+
+        function animate() {
+
+            requestAnimationFrame(
+                animate
+            );
+
+
+            const elapsed =
+                clock.getElapsedTime();
+
+
+            /* -----------------------------------------
+               SUBTLE SPHERE MOTION
+            ----------------------------------------- */
+
+            if (!isTransitioning) {
+
+                sphereGroup.rotation.y =
+                    Math.sin(
+                        elapsed * 0.15
+                    ) * 0.04;
+            }
+
+
+            /* -----------------------------------------
+               PARTICLE MOTION
+            ----------------------------------------- */
+
+            particles.rotation.y =
+                elapsed * 0.008;
+
+
+            particles.rotation.x =
+                Math.sin(
+                    elapsed * 0.05
+                ) * 0.02;
+
+
+            /* -----------------------------------------
+               CONTROLS
+            ----------------------------------------- */
+
+            controls.update();
+
+
+            /* -----------------------------------------
+               RENDER
+            ----------------------------------------- */
+
+            renderer.render(
+                scene,
+                camera
+            );
+
+
+            labelRenderer.render(
+                scene,
+                camera
+            );
+        }
+
+
+        animate();
+
+    </script>
+
+</body>
+
+</html>
