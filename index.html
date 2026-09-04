@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Bloch Sphere — Happy Teacher's Day, Professor</title>
+    <title>Bloch Sphere — Happy Teacher's Day, Sir</title>
 
     <style>
         /* =========================================================
@@ -258,24 +258,27 @@
 
             z-index: 15;
 
-            width: min(600px, 85vw);
+            width: min(760px, 92vw);
+            max-height: 88vh;
+            overflow-y: auto;
 
-            padding: 36px;
+            padding: 60px 56px;
 
             text-align: center;
 
-            background: rgba(5, 5, 5, 0.94);
+            background: rgba(22, 13, 6, 0.96);
 
-            border: 1px solid rgba(255, 106, 0, 0.35);
+            border: 1px solid rgba(255, 150, 60, 0.5);
 
-            border-radius: 16px;
+            border-radius: 24px;
 
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
 
             box-shadow:
                 0 20px 100px rgba(0, 0, 0, 0.6),
-                0 0 80px rgba(255, 106, 0, 0.06);
+                0 0 110px rgba(255, 130, 20, 0.22),
+                inset 0 0 60px rgba(255, 130, 20, 0.06);
 
             opacity: 0;
 
@@ -294,43 +297,124 @@
                 scale(1);
         }
 
-        .thank-you .symbol {
-            margin-bottom: 15px;
+        .thank-you .card-eyebrow {
+            margin-bottom: 14px;
 
-            color: #ff6a00;
+            color: #ff9a3c;
+
+            font-family: monospace;
+            font-size: 13px;
+
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+        }
+
+        .thank-you .symbol {
+            margin-bottom: 12px;
+
+            color: #ffa03c;
 
             font-family: serif;
-            font-size: 42px;
+            font-size: 68px;
+            line-height: 1;
+
+            text-shadow:
+                0 0 40px rgba(255, 140, 30, 0.7);
         }
 
         .thank-you h2 {
-            margin: 0 0 14px;
+            margin: 0 0 20px;
 
-            color: #ffffff;
+            color: #ffcf99;
 
-            font-size: 28px;
-            font-weight: 400;
+            font-size: clamp(42px, 6vw, 60px);
+            font-weight: 700;
+
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+
+            text-shadow:
+                0 0 45px rgba(255, 140, 30, 0.4);
         }
 
         .thank-you p {
-            margin: 0;
+            margin: 0 0 18px;
 
-            color: #999999;
+            color: #f3e2c9;
 
-            font-size: 15px;
+            font-size: 21px;
 
-            line-height: 1.7;
+            line-height: 1.9;
+        }
+
+        .thank-you p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .thank-you p.lead {
+            color: #fff3e0;
+
+            font-size: 23px;
+            font-weight: 500;
+        }
+
+        .thank-you p .heart {
+            color: #ff9a3c;
         }
 
         .thank-you .signature {
-            margin-top: 22px;
+            margin-top: 30px;
+            padding-top: 24px;
 
-            color: #ffffff;
+            border-top: 1px solid rgba(255, 150, 60, 0.2);
+
+            color: #ffbe78;
 
             font-family: monospace;
-            font-size: 11px;
+            font-size: 15px;
 
             letter-spacing: 0.04em;
+            line-height: 2;
+        }
+
+        .thank-you .signature .name {
+            color: #ffffff;
+
+            font-size: 24px;
+            font-weight: 700;
+
+            letter-spacing: 0.06em;
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        .footer {
+            position: fixed;
+
+            left: 50%;
+            bottom: 12px;
+
+            transform: translateX(-50%);
+
+            z-index: 10;
+
+            color: rgba(255, 255, 255, 0.55);
+
+            font-family: monospace;
+            font-size: 12px;
+
+            letter-spacing: 0.08em;
+            text-align: center;
+            white-space: nowrap;
+
+            pointer-events: none;
+        }
+
+        .footer span {
+            color: #ffbe78;
         }
 
 
@@ -361,13 +445,22 @@
             }
 
             .thank-you {
-                width: 90vw;
+                width: 92vw;
+                max-height: 82vh;
 
-                padding: 28px 22px;
+                padding: 36px 24px;
             }
 
             .thank-you h2 {
-                font-size: 23px;
+                font-size: 36px;
+            }
+
+            .thank-you p {
+                font-size: 17px;
+            }
+
+            .thank-you p.lead {
+                font-size: 19px;
             }
         }
     </style>
@@ -390,7 +483,7 @@
     <div class="hud">
 
         <div class="eyebrow">
-            Happy Teacher's Day, Professor
+            Happy Teacher's Day, Sir
         </div>
 
         <h1>
@@ -464,6 +557,10 @@
         id="thankYou"
     >
 
+        <div class="card-eyebrow">
+            To Our Beloved Sir
+        </div>
+
         <div class="symbol">
             ⟨ ψ |
         </div>
@@ -472,20 +569,48 @@
             Happy Teacher's Day, Sir!!!
         </h2>
 
+        <p class="lead">
+            With heartfelt gratitude for your guidance,
+            patience, and wisdom. <span class="heart">♥</span>
+        </p>
+
         <p>
-            Happy Teacher's Day, Sir!!!
-            Thank you for the lectures!!.
-            <br>
+            Thank you for turning every doubt into curiosity
+            and every complex idea into a moment of clarity.
+            Your lectures don't just teach us subjects —
+            they teach us how to think, question, and dream bigger.
+        </p>
+
+        <p>
+            Like a state vector finding its true direction,
+            you have guided us from confusion to absolute intuition.
             The probability of understanding has
             successfully collapsed to 1.
+        </p>
+
+        <p>
+            Wishing you joy, good health, and endless inspiration.
+            We are truly lucky to learn from you, Sir!!
         </p>
 
         <div class="signature">
             Δψ → 0
             &nbsp;&nbsp; | &nbsp;&nbsp;
             uncertainty → enlightenment
+            <br><br>
+            Warm Regards,<br>
+            <span class="name">Reman Dey</span>
         </div>
 
+    </div>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <div class="footer">
+        Warm Regards, <span>Reman Dey</span>
     </div>
 
 
